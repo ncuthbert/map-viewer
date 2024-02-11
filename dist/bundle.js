@@ -30084,7 +30084,12 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	            throw new Error('Cannot find the parent window.');
 	          }
 
-	          top.postMessage({ geoJson: context.data.get('map') }, '*');
+	          console.log(
+	            'Sending save message to parent',
+	            context.data.get('map')
+	          );
+
+	          window.parent.postMessage({ geoJson: context.data.get('map') }, '*');
 	        }
 	      },
 	      {

@@ -29,7 +29,12 @@ module.exports = function fileBar(context) {
             throw new Error('Cannot find the parent window.');
           }
 
-          top.postMessage({ geoJson: context.data.get('map') }, '*');
+          console.log(
+            'Sending save message to parent',
+            context.data.get('map')
+          );
+
+          window.parent.postMessage({ geoJson: context.data.get('map') }, '*');
         }
       },
       {
