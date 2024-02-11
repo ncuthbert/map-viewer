@@ -31,7 +31,7 @@ module.exports = function fileBar(context) {
 
           console.log(
             'Sending save message to parent',
-            context.data.get('map')
+            window.api.data.get('map')
           );
 
           window.parent.postMessage({ geoJson: context.data.get('map') }, '*');
