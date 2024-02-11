@@ -1,16 +1,4 @@
-const shpwrite = require('shp-write'),
-  clone = require('clone'),
-  geojson2dsv = require('geojson2dsv'),
-  topojson = require('topojson-server'),
-  saveAs = require('file-saver'),
-  tokml = require('@placemarkio/tokml'),
-  geojsonNormalize = require('@mapbox/geojson-normalize'),
-  wellknown = require('wellknown');
-
-const flash = require('./flash'),
-  zoomextent = require('../lib/zoomextent'),
-  readFile = require('../lib/readfile'),
-  meta = require('../lib/meta.js');
+const meta = require('../lib/meta.js');
 
 /**
  * This module provides the file picking & status bar above the map interface.
@@ -20,72 +8,34 @@ const flash = require('./flash'),
 module.exports = function fileBar(context) {
   const shpSupport = typeof ArrayBuffer !== 'undefined';
 
-  const exportFormats = [
-    {
-      title: 'GeoJSON',
-      action: downloadGeoJSON
-    },
-    {
-      title: 'TopoJSON',
-      action: downloadTopo
-    },
-    {
-      title: 'CSV',
-      action: downloadDSV
-    },
-    {
-      title: 'KML',
-      action: downloadKML
-    },
-    {
-      title: 'WKT',
-      action: downloadWKT
-    }
-  ];
-
   if (shpSupport) {
-    exportFormats.push({
+    /* exportFormats.push({
       title: 'Shapefile',
       action: downloadShp
-    });
+    });*/
   }
 
   function bar(selection) {
     const actions = [
       {
-        title: 'Open',
-        alt: 'CSV, GTFS, KML, GPX, and other filetypes',
+        title: 'Import shapefile',
+        alt: '',
         action: blindImport
       },
       {
-        title: 'Save',
-        children: exportFormats
-      },
-      {
-        title: 'New',
+        title: 'Save to project',
         action: function () {
-          window.open(
-            window.location.origin + window.location.pathname + '#new'
-          );
+          if (typeof window.Retool === 'undefined') {
+            throw new Error('Cannot find the Retool object on the window.');
+          }
+
+          window.Retool.modelUpdate({ geoJson: context.data.get('map') });
         }
       },
       {
-        title: 'Meta',
+        title: 'Tools',
         action: function () {},
         children: [
-          {
-            title: 'Add raster tile layer',
-            alt: 'Add a custom tile layer',
-            action: function () {
-              const layerURL = prompt(
-                'Layer URL\ne.g. https://stamen-tiles-b.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'
-              );
-              if (layerURL === null) return;
-              const layerName = prompt('Layer name');
-              if (layerName === null) return;
-              meta.adduserlayer(context, layerURL, layerName);
-            }
-          },
           {
             title: 'Zoom to features',
             alt: 'Zoom to the extent of all features',
@@ -94,12 +44,12 @@ module.exports = function fileBar(context) {
             }
           },
           {
-            title: 'Clear',
-            alt: 'Delete all features from the map',
+            title: 'Clear changes',
+            alt: 'Delete all new features from the map',
             action: function () {
               if (
                 confirm(
-                  'Are you sure you want to delete all features from this map?'
+                  'Are you sure you want to delete all new features from this map?'
                 )
               ) {
                 meta.clear(context);
@@ -107,63 +57,10 @@ module.exports = function fileBar(context) {
             }
           },
           {
-            title: 'Random: Points',
-            alt: 'Add random points to your map',
-            action: function () {
-              const response = prompt('Number of points (default: 100)');
-              if (response === null) return;
-              let count = parseInt(response, 10);
-              if (isNaN(count)) count = 100;
-              meta.random(context, count, 'point');
-            }
-          },
-          {
-            title: 'Add bboxes',
-            alt: 'Add bounding box members to all applicable GeoJSON objects',
-            action: function () {
-              meta.bboxify(context);
-            }
-          },
-          {
             title: 'Flatten Multi Features',
             alt: 'Flatten MultiPolygons, MultiLines, and GeometryCollections into simple geometries',
             action: function () {
               meta.flatten(context);
-            }
-          },
-          {
-            title: 'Load encoded polyline (precision 5)',
-            alt: 'Decode and show an encoded precision 5 polyline.',
-            action: function () {
-              meta.polyline(context);
-            }
-          },
-          {
-            title: 'Load encoded polyline (precision 6)',
-            alt: 'Decode and show an encoded precision 6 polyline.',
-            action: function () {
-              meta.polyline6(context);
-            }
-          },
-          {
-            title: 'Load WKB Base64 Encoded String',
-            alt: 'Decode and show WKX data',
-            action: function () {
-              meta.wkxBase64(context);
-            }
-          },
-          {
-            title: 'Load WKB Hex Encoded String',
-            alt: 'Decode and show WKX data',
-            action: function () {
-              meta.wkxHex(context);
-            }
-          },
-          {
-            title: 'Load WKT String',
-            alt: 'Decode and show WKX data',
-            action: function () {
-              meta.wkxString(context);
             }
           }
         ]
@@ -228,7 +125,8 @@ module.exports = function fileBar(context) {
     }
 
     function blindImport() {
-      const put = d3
+      return;
+      /* const put = d3
         .select('body')
         .append('input')
         .attr('type', 'file')
@@ -248,10 +146,10 @@ module.exports = function fileBar(context) {
           });
           put.remove();
         });
-      put.node().click();
+      put.node().click();*/
     }
 
-    function onImport(err, gj, warning) {
+    /* function onImport(err, gj, warning) {
       gj = geojsonNormalize(gj);
       if (gj) {
         context.data.mergeFeatures(gj.features);
@@ -265,7 +163,7 @@ module.exports = function fileBar(context) {
         }
         zoomextent(context);
       }
-    }
+    }*/
 
     d3.select(document).call(
       d3.keybinding('file_bar').on('⌘+o', () => {
@@ -275,7 +173,7 @@ module.exports = function fileBar(context) {
     );
   }
 
-  function downloadTopo() {
+  /* function downloadTopo() {
     const content = JSON.stringify(
       topojson.topology(
         {
@@ -291,9 +189,9 @@ module.exports = function fileBar(context) {
       }),
       'map.topojson'
     );
-  }
+  }*/
 
-  function downloadGeoJSON() {
+  /* function downloadGeoJSON() {
     if (d3.event) d3.event.preventDefault();
     const content = JSON.stringify(context.data.get('map'));
     const meta = context.data.get('meta');
@@ -348,12 +246,12 @@ module.exports = function fileBar(context) {
       }),
       'map.wkt'
     );
-  }
+  }*/
 
-  function allProperties(properties, key, value) {
+  /* function allProperties(properties, key, value) {
     properties[key] = value;
     return true;
-  }
+  }*/
 
   return bar;
 };

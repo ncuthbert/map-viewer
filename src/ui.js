@@ -1,5 +1,4 @@
-const buttons = require('./ui/mode_buttons'),
-  file_bar = require('./ui/file_bar'),
+const file_bar = require('./ui/file_bar'),
   dnd = require('./ui/dnd'),
   // userUi = require('./ui/user'),
   layer_switch = require('./ui/layer_switch'),
@@ -16,18 +15,18 @@ function ui(context) {
         'ui-container grow flex-shrink-0 flex flex-col md:flex-row w-full relative overflow-x-hidden'
       );
 
-    const map = container
+    container
       .append('div')
       .attr('id', 'map')
       .attr(
         'class',
-        'map grow shrink-0 top-0 bottom-0 left-0 basis-0 transition-all duration-300'
+        'map grow shrink-0 top-0 bottom-0 left-0 md:basis-full transition-all duration-300'
       )
       .call(layer_switch(context))
       .call(projection_switch(context));
 
     // sidebar handle
-    map
+    /* map
       .append('div')
       .attr(
         'class',
@@ -48,7 +47,7 @@ function ui(context) {
         }, 300);
       })
       .append('i')
-      .attr('class', 'sidebar-handle-icon fa-solid fa-caret-right');
+      .attr('class', 'sidebar-handle-icon fa-solid fa-caret-right');*/
 
     context.container = container;
 
@@ -58,7 +57,7 @@ function ui(context) {
   function render(selection) {
     const container = init(selection);
 
-    const right = container
+    /* const right = container
       .append('div')
       .attr(
         'class',
@@ -81,6 +80,8 @@ function ui(context) {
       .append('div')
       .attr('class', 'buttons flex')
       .call(buttons(context, pane));
+
+      */
 
     container
       .append('div')
