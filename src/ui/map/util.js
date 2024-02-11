@@ -11,6 +11,7 @@ const {
   DEFAULT_LIGHT_FEATURE_COLOR,
   DEFAULT_SATELLITE_FEATURE_COLOR
 } = require('../../constants');
+const config = require('../../config');
 
 const markers = [];
 
@@ -198,10 +199,34 @@ function geojsonToLayer(context, writable) {
   }
 }
 
+function getMode() {
+  const queryString = window.location.search;
+
+  const urlParams = new URLSearchParams(queryString);
+
+  return urlParams.get('mode');
+}
+
+function isTaskMode() {
+  return getMode() === 'task';
+}
+
+function isProjectMode() {
+  return getMode() === 'project';
+}
+
 function bindPopup(e, context, writable) {
   // build the popup using the actual feature from the data store,
   // not the feature returned from queryRenderedFeatures()
   const { id } = e.features[0];
+
+  if (
+    (id === config.projectBoundsPropId && isProjectMode()) ||
+    (id === config.samplingLocationId && isTaskMode())
+  ) {
+    return;
+  }
+
   const feature = context.data.get('map').features[id];
 
   // the id is needed when clicking buttons in the popup, but only exists on the feature after it is added to the map

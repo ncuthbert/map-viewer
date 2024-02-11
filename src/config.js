@@ -1,5 +1,7 @@
 module.exports = function () {
   return {
-    GithubAPI: false
+    GithubAPI: false,
+    projectBoundsPropId: 'project',
+    samplingLocationId: 'sampling_location'
   };
 };
