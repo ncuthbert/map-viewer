@@ -27,45 +27,13 @@
   <meta property="og:image" content="/img/twitter-card-image.png" />
 
   <meta http-equiv="Content-Security-Policy" content="
-    default-src
-      'self'
-      ;
-    child-src
-      'self'
-      blob:
-      ;
-    connect-src
-      'self'
-      *
-      ;
-    font-src
-      https://fonts.gstatic.com/
-      'self'
-      ;
-    frame-src
-      'self'
-      ;
-    img-src
-      'self'
-      data:
-      *
-      ;
-    script-src
-      'self'
-      'unsafe-eval'
-      'unsafe-inline'
-      https://cdn.segment.com
-      https://assets.customer.io
-      https://secure.gaug.es
-      https://www.google-analytics.com
-      https://www.googletagmanager.com/gtag/js
-      https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js
-      ;
-    style-src
-      'self'
-      'unsafe-inline'
-      ;
-  ">
+      default-src *  data: blob: filesystem: about: ws: wss: 'unsafe-inline' 'unsafe-eval'; 
+      script-src * data: blob: 'unsafe-inline' 'unsafe-eval'; 
+      connect-src * data: blob: 'unsafe-inline'; 
+      img-src * data: blob: 'unsafe-inline'; 
+      frame-src * data: blob: ; 
+      style-src * data: blob: 'unsafe-inline';
+      font-src * data: blob: 'unsafe-inline';" />
   <style>
     /*
    * http://seclab.stanford.edu/websec/framebusting/framebust.pdf
@@ -107,7 +75,7 @@
     if (self == top) {
       document.getElementsByTagName("body")[0].style.display = "block";
     } else {
-      /// top.location = self.location;
+      ///top.location = self.location;
     }
   </script>
   <script src="dist/bundle.js"></script>
