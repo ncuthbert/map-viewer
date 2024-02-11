@@ -25,11 +25,11 @@ module.exports = function fileBar(context) {
       {
         title: 'Save to project',
         action: function () {
-          if (typeof window.Retool === 'undefined') {
-            throw new Error('Cannot find the Retool object on the window.');
+          if (typeof top === 'undefined') {
+            throw new Error('Cannot find the parent window.');
           }
 
-          window.Retool.modelUpdate({ geoJson: context.data.get('map') });
+          top.postMessage({ geoJson: context.data.get('map') }, '*');
         }
       },
       {
