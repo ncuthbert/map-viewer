@@ -1,5 +1,4 @@
 const mapboxgl = require('mapbox-gl');
-const escape = require('escape-html');
 const length = require('@turf/length').default;
 const area = require('@turf/area').default;
 
@@ -12,15 +11,14 @@ const {
   DEFAULT_SATELLITE_FEATURE_COLOR
 } = require('../../constants');
 const config = require('../../config');
+const {
+  getLandPlotOptions,
+  getProjectBoundsOptions
+} = require('../popover-form');
 
 const markers = [];
 
 makiNames = require('@mapbox/maki/layouts/all.json');
-let makiOptions = '';
-
-for (let i = 0; i < makiNames.length; i++) {
-  makiOptions += '<option value="' + makiNames[i] + '">';
-}
 
 const addIds = (geojson) => {
   return {
@@ -212,7 +210,7 @@ function isTaskMode() {
 }
 
 function isProjectMode() {
-  return getMode() === 'project';
+  return getMode() === 'project_bounds';
 }
 
 function bindPopup(e, context, writable) {
@@ -220,119 +218,22 @@ function bindPopup(e, context, writable) {
   // not the feature returned from queryRenderedFeatures()
   const { id } = e.features[0];
 
-  if (
-    (id === config.projectBoundsPropId && isProjectMode()) ||
-    (id === config.samplingLocationId && isTaskMode())
-  ) {
-    return;
-  }
-
   const feature = context.data.get('map').features[id];
 
   // the id is needed when clicking buttons in the popup, but only exists on the feature after it is added to the map
   feature.id = id;
 
-  const props = feature.properties;
   let table = '';
   let info = '';
 
-  let properties = {};
+  const props = feature.properties;
 
-  // Steer clear of XSS
-  for (const k in props) {
-    const esc = escape(k);
-    // users don't want to see "[object Object]"
-    if (typeof props[k] === 'object') {
-      properties[esc] = escape(JSON.stringify(props[k]));
-    } else {
-      properties[esc] = escape(props[k]);
-    }
-  }
+  const locationCategory = props['location_category'];
 
-  if (!properties) return;
-
-  if (!Object.keys(properties).length) properties = { '': '' };
-
-  for (const key in properties) {
-    if (
-      (key === 'marker-color' || key === 'stroke' || key === 'fill') &&
-      writable
-    ) {
-      table +=
-        '<tr class="style-row"><th><input type="text" value="' +
-        key +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></th>' +
-        '<td><input type="color" value="' +
-        properties[key] +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></td></tr>';
-    } else if (key === 'marker-size' && writable) {
-      table +=
-        '<tr class="style-row"><th><input type="text" value="' +
-        key +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></th>' +
-        '<td><input type="text" list="marker-size" value="' +
-        properties[key] +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /><datalist id="marker-size"><option value="small"><option value="medium"><option value="large"></datalist></td></tr>';
-    } else if (key === 'marker-symbol' && writable) {
-      table +=
-        '<tr class="style-row"><th><input type="text" value="' +
-        key +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></th>' +
-        '<td><input type="text" list="marker-symbol" value="' +
-        properties[key] +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /><datalist id="marker-symbol">' +
-        makiOptions +
-        '</datalist></td></tr>';
-    } else if (key === 'stroke-width' && writable) {
-      table +=
-        '<tr class="style-row"><th><input type="text" value="' +
-        key +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></th>' +
-        '<td><input type="number" min="0" step="0.1" value="' +
-        properties[key] +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></td></tr>';
-    } else if (['stroke-opacity', 'fill-opacity'].includes(key) && writable) {
-      table +=
-        '<tr class="style-row"><th><input type="text" value="' +
-        key +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></th>' +
-        '<td><input type="number" min="0" max="1" step="0.1" value="' +
-        properties[key] +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></td></tr>';
-    } else {
-      table +=
-        '<tr><th><input type="text" value="' +
-        key +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></th>' +
-        '<td><input type="text" value="' +
-        properties[key] +
-        '"' +
-        (!writable ? ' readonly' : '') +
-        ' /></td></tr>';
-    }
-  }
+  table +=
+    locationCategory === 'land_plot'
+      ? getLandPlotOptions(context, id)
+      : getProjectBoundsOptions(context, id);
 
   if (feature && feature.geometry) {
     info += '<table class="metadata">';
@@ -383,47 +284,6 @@ function bindPopup(e, context, writable) {
     info += '</table>';
   }
 
-  // don't show the add simplestyle properties button if the feature already contains simplestyle properties
-  let showAddStyleButton = true;
-
-  if (
-    feature.geometry.type === 'Point' ||
-    feature.geometry.type === 'MultiPoint'
-  ) {
-    if ('marker-color' in properties && 'marker-size' in properties) {
-      showAddStyleButton = false;
-    }
-  }
-
-  if (
-    feature.geometry.type === 'LineString' ||
-    feature.geometry.type === 'MultiLineString'
-  ) {
-    if (
-      'stroke' in properties &&
-      'stroke-width' in properties &&
-      'stroke-opacity' in properties
-    ) {
-      showAddStyleButton = false;
-    }
-  }
-
-  if (
-    feature.geometry.type === 'Polygon' ||
-    feature.geometry.type === 'MultiPolygon'
-  ) {
-    showAddStyleButton = true;
-    if (
-      'stroke' in properties &&
-      'stroke-width' in properties &&
-      'stroke-opacity' in properties &&
-      'fill' in properties &&
-      'fill-opacity' in properties
-    ) {
-      showAddStyleButton = false;
-    }
-  }
-
   const tabs =
     '<div class="pad1 tabs-ui clearfix col12">' +
     '<div class="tab col12">' +
@@ -433,12 +293,6 @@ function bindPopup(e, context, writable) {
     '<table class="space-bottom0 marker-properties">' +
     table +
     '</table>' +
-    (writable
-      ? '<div class="add-row-button add fl col4"><span class="fa-solid fa-plus"></span> Add row</div>'
-      : '') +
-    (writable && showAddStyleButton
-      ? '<div class="add-simplestyle-properties-button fl text-right col8">Add simplestyle properties</div>'
-      : '') +
     '</div>' +
     '</div>' +
     '<div class="space-bottom2 tab col12">' +
@@ -461,7 +315,7 @@ function bindPopup(e, context, writable) {
         '<button class="save col6 major" type="submit">Save</button>' +
         '<button class="minor col6 cancel">Cancel</button>' +
         '</div>' +
-        '<button class="col6 text-right pad0 delete-invert"><span class="fa-solid fa-trash"></span> Delete feature</button></div>'
+        '<button class="col6 text-right pad0 delete-invert"><span class="fa-solid fa-trash"></span> Delete location</button></div>'
       : '') +
     '</form>';
 
@@ -478,7 +332,7 @@ function bindPopup(e, context, writable) {
 
   new mapboxgl.Popup({
     closeButton: false,
-    maxWidth: '251px',
+    maxWidth: '320px',
     offset: popupOffsets,
     className: 'geojsonio-feature'
   })

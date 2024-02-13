@@ -23,7 +23,7 @@ module.exports = function fileBar(context) {
         action: blindImport
       },
       {
-        title: 'Save to project',
+        title: 'Save changes',
         action: function () {
           if (typeof top === 'undefined') {
             throw new Error('Cannot find the parent window.');
@@ -60,14 +60,14 @@ module.exports = function fileBar(context) {
                 meta.clear(context);
               }
             }
-          },
-          {
+          }
+          /* {
             title: 'Flatten Multi Features',
             alt: 'Flatten MultiPolygons, MultiLines, and GeometryCollections into simple geometries',
             action: function () {
               meta.flatten(context);
             }
-          }
+          }*/
         ]
       }
     ];

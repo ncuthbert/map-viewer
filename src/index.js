@@ -60,6 +60,9 @@ function geojsonIO() {
   context.repo = repo(context);
   context.router = router(context);
   context.user = user(context);
+
+  window.parent.postMessage({ ready: true }, '*');
+
   return context;
 }
 

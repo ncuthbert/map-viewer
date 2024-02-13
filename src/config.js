@@ -1,7 +1,7 @@
 module.exports = function () {
   return {
     GithubAPI: false,
-    projectBoundsPropId: 'project',
-    samplingLocationId: 'sampling_location'
+    projectBoundsPropId: 'project_bounds',
+    landPlotId: 'land_plot'
   };
 };

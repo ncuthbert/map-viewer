@@ -7,6 +7,9 @@ module.exports = function (context) {
   const query = qs.stringQs(location.hash.split('#')[1] || '');
 
   if (location.hash !== '#new' && !query.id && !query.data) {
+    context.storage.remove('recover');
+    // TODO
+    /*
     const rec = context.storage.get('recover');
     if (rec && confirm('recover your map from the last time you edited?')) {
       context.data.set({
@@ -15,7 +18,7 @@ module.exports = function (context) {
       });
     } else {
       context.storage.remove('recover');
-    }
+    }*/
   }
 
   function onunload() {

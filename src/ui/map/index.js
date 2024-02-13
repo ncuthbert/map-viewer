@@ -150,7 +150,7 @@ module.exports = function (context, readonly) {
             classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_point'],
             title: 'Draw Point (m)'
           },
-          {
+          /* {
             on: 'click',
             action: () => {
               drawing = true;
@@ -158,7 +158,8 @@ module.exports = function (context, readonly) {
             },
             classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_line'],
             title: 'Draw LineString (l)'
-          },
+          },*/
+
           {
             on: 'click',
             action: () => {
@@ -351,6 +352,34 @@ module.exports = function (context, readonly) {
         context.map.addSource('map-data', {
           type: 'geojson',
           data: dummyGeojson
+        });
+
+        context.map.addLayer({
+          id: 'project-bounds',
+          type: 'fill',
+          source: 'map-data',
+          paint: {
+            'fill-outline-color': '#484896',
+            // 'fill-color': '#6e599f',
+            'fill-color': [
+              'match',
+              ['get', 'location_category'],
+              'land_plot',
+              'red',
+              'project_bounds',
+              'green',
+              color
+            ],
+            'fill-opacity': [
+              'match',
+              ['get', 'location_category'],
+              'land_plot',
+              0.55,
+              'project_bounds',
+              0.15,
+              0.3
+            ]
+          }
         });
 
         context.map.addLayer({
