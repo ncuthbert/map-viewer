@@ -44,6 +44,8 @@
       }
   
       window.addEventListener('message', (msg) => {
+        console.log('Got iframe message', window.ready);
+
         if (window.ready) {
           importGeoJson(msg);
         } else {
