@@ -189,6 +189,8 @@ function geojsonToLayer(context, writable, source) {
     workingDatasetSource.setData(addIds(filteredGeojson));
     addMarkers(filteredGeojson, context, writable);
 
+    console.log('zooming');
+
     if (geojson && geojson.features.length > 0 && source !== 'popup') {
       zoomextent(context);
     }

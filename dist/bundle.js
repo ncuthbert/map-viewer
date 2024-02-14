@@ -63729,6 +63729,8 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	    workingDatasetSource.setData(addIds(filteredGeojson));
 	    addMarkers(filteredGeojson, context);
 
+	    console.log('zooming');
+
 	    if (geojson && geojson.features.length > 0 && source !== 'popup') {
 	      zoomextent$1(context);
 	    }
