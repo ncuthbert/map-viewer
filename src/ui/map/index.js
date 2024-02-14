@@ -435,7 +435,7 @@ module.exports = function (context, readonly) {
           filter: ['==', ['geometry-type'], 'LineString']
         });
 
-        geojsonToLayer(context, writable, true);
+        geojsonToLayer(context, writable);
 
         context.data.set({
           mapStyleLoaded: false
@@ -529,10 +529,10 @@ module.exports = function (context, readonly) {
       context.data.set({ map: FC }, 'map');
     }
 
-    context.dispatch.on('change.map', ({ obj }) => {
+    context.dispatch.on('change.map', ({ obj, source }) => {
       maybeShowEditControl();
       if (obj.map) {
-        geojsonToLayer(context, writable, false);
+        geojsonToLayer(context, writable, source);
       }
     });
   }

@@ -172,7 +172,7 @@ const addMarkers = (geojson, context, writable) => {
   });
 };
 
-function geojsonToLayer(context, writable, shouldZoom) {
+function geojsonToLayer(context, writable, source) {
   const geojson = context.data.get('map');
   if (!geojson) return;
 
@@ -189,7 +189,7 @@ function geojsonToLayer(context, writable, shouldZoom) {
     workingDatasetSource.setData(addIds(filteredGeojson));
     addMarkers(filteredGeojson, context, writable);
 
-    if (shouldZoom && geojson && geojson.features.length > 0) {
+    if (geojson && geojson.features.length > 0 && source !== 'popup') {
       zoomextent(context);
     }
   }

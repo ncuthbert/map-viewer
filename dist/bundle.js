@@ -63712,7 +63712,7 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	  });
 	};
 
-	function geojsonToLayer$1(context, writable, shouldZoom) {
+	function geojsonToLayer$1(context, writable, source) {
 	  const geojson = context.data.get('map');
 	  if (!geojson) return;
 
@@ -63729,7 +63729,7 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	    workingDatasetSource.setData(addIds(filteredGeojson));
 	    addMarkers(filteredGeojson, context);
 
-	    if (shouldZoom && geojson && geojson.features.length > 0) {
+	    if (geojson && geojson.features.length > 0 && source !== 'popup') {
 	      zoomextent$1(context);
 	    }
 	  }
@@ -64576,7 +64576,7 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	          filter: ['==', ['geometry-type'], 'LineString']
 	        });
 
-	        geojsonToLayer(context, writable, true);
+	        geojsonToLayer(context, writable);
 
 	        context.data.set({
 	          mapStyleLoaded: false
@@ -64670,10 +64670,10 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	      context.data.set({ map: FC }, 'map');
 	    }
 
-	    context.dispatch.on('change.map', ({ obj }) => {
+	    context.dispatch.on('change.map', ({ obj, source }) => {
 	      maybeShowEditControl();
 	      if (obj.map) {
-	        geojsonToLayer(context, writable, false);
+	        geojsonToLayer(context, writable, source);
 	      }
 	    });
 	  }
