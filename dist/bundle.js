@@ -65942,17 +65942,16 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	  context.router = router(context);
 	  context.user = user(context);
 
+	  window.ready = true;
+
 	  window.parent.postMessage({ ready: true }, '*');
 
-	  function listenForImportMessage(msg) {
-	    if (msg.data.geoJson) {
-	      console.log('Received GeoJSON import message', msg);
+	  const event = new Event('ready');
 
-	      data.set({ map: JSON.parse(msg.data.geoJson) });
-	    }
-	  }
+	  console.log(window);
+	  debugger;
 
-	  window.addEventListener('message', listenForImportMessage);
+	  window.dispatchEvent(event);
 
 	  return context;
 	}

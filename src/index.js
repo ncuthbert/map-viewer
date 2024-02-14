@@ -61,9 +61,9 @@ function geojsonIO() {
   context.router = router(context);
   context.user = user(context);
 
-  window.parent.postMessage({ ready: true }, '*');
-
   window.ready = true;
+
+  window.parent.postMessage({ ready: true }, '*');
 
   const event = new Event('ready');
 
