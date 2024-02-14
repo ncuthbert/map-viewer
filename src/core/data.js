@@ -1,6 +1,6 @@
 const clone = require('clone'),
   xtend = require('xtend'),
-  config = require('../config.js')(location.hostname),
+  config = require('../config.js'),
   source = {
     gist: require('../source/gist'),
     github: require('../source/github'),

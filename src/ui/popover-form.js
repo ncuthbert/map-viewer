@@ -1,9 +1,12 @@
 const escapeHTML = require('escape-html');
 const { startCase } = require('lodash');
+const config = require('../config');
 
-function getLocationCategoryOption(selectedOption) {
+function getLocationCategoryOption(selectedOption, isEditable) {
   return `<tr><th><input class="prop-input" readonly type="text" value="Location Category"/></th><td>
-  <select class="prop-input" id="location-category-select">
+  <select ${
+    !isEditable ? 'disabled' : ''
+  } class="prop-input" id="location-category-select">
       <option disabled ${
         !selectedOption ? 'selected' : ''
       } value> -- Select a category -- </option>
@@ -17,15 +20,21 @@ function getLocationCategoryOption(selectedOption) {
   </td></tr>`;
 }
 
-function getLandPlotOptions(context, id) {
-  return getOptions(context, id, { Name: '', Type: '' }, 'land_plot');
+function getLandPlotOptions(context, id, isEditable) {
+  return getOptions(
+    context,
+    id,
+    { Name: '', Type: '' },
+    'land_plot',
+    isEditable
+  );
 }
 
-function getProjectBoundsOptions(context, id) {
-  return getOptions(context, id, { Name: '' }, 'project_bounds');
+function getProjectBoundsOptions(context, id, isEditable) {
+  return getOptions(context, id, { Name: '' }, 'project_bounds', isEditable);
 }
 
-function getOptions(context, id, propertiesStruct, key) {
+function getOptions(context, id, propertiesStruct, key, isEditable) {
   let table = '';
 
   const feature = context.data.get('map').features[id];
@@ -47,15 +56,19 @@ function getOptions(context, id, propertiesStruct, key) {
     }
   }
 
-  table += getLocationCategoryOption(key);
+  table += getLocationCategoryOption(key, isEditable);
 
   for (const key in propertiesStruct) {
     table +=
-      '<tr><th><input class="prop-input" readonly type="text" value="' +
+      `<tr><th><input ${
+        !isEditable ? 'readonly' : ''
+      } class="prop-input" readonly type="text" value="` +
       key +
       '"' +
       ' /></th>' +
-      '<td><input class="prop-input" type="text" value="' +
+      `<td><input ${
+        !isEditable ? 'readonly' : ''
+      } class="prop-input" type="text" value="` +
       newProperties[key] +
       '"' +
       ' /></td></tr>';
@@ -67,7 +80,9 @@ function getOptions(context, id, propertiesStruct, key) {
 function addLandPlotOptions(e, context, id, onCategorySelect) {
   const sel = d3.select(e.target._content);
 
-  const table = getLandPlotOptions(context, id);
+  const isEditable = config.isProjectMode();
+
+  const table = getLandPlotOptions(context, id, isEditable);
 
   sel.select('table.marker-properties tbody').html(table);
 
@@ -77,7 +92,9 @@ function addLandPlotOptions(e, context, id, onCategorySelect) {
 function addProjectBoundsOptions(e, context, id, onCategorySelect) {
   const sel = d3.select(e.target._content);
 
-  const table = getProjectBoundsOptions(context, id);
+  const isEditable = config.isProjectMode();
+
+  const table = getProjectBoundsOptions(context, id, isEditable);
 
   sel.select('table.marker-properties tbody').html(table);
 

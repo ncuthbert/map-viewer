@@ -2,7 +2,7 @@ module.exports.save = save;
 module.exports.load = load;
 module.exports.loadRaw = loadRaw;
 
-const config = require('../config.js')(location.hostname);
+const config = require('../config.js');
 const githubBase = config.GithubAPI
   ? config.GithubAPI + '/api/v3'
   : 'https://api.github.com';

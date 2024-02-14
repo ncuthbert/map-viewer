@@ -10,11 +10,11 @@ const {
   DEFAULT_LIGHT_FEATURE_COLOR,
   DEFAULT_SATELLITE_FEATURE_COLOR
 } = require('../../constants');
-const config = require('../../config');
 const {
   getLandPlotOptions,
   getProjectBoundsOptions
 } = require('../popover-form');
+const config = require('../../config');
 
 const markers = [];
 
@@ -172,7 +172,7 @@ const addMarkers = (geojson, context, writable) => {
   });
 };
 
-function geojsonToLayer(context, writable) {
+function geojsonToLayer(context, writable, shouldZoom) {
   const geojson = context.data.get('map');
   if (!geojson) return;
 
@@ -188,32 +188,14 @@ function geojsonToLayer(context, writable) {
     };
     workingDatasetSource.setData(addIds(filteredGeojson));
     addMarkers(filteredGeojson, context, writable);
-    zoomextent(context);
-    context.data.set({
-      recovery: false
-    });
+
+    if (shouldZoom && geojson && geojson.features.length > 0) {
+      zoomextent(context);
+    }
   }
 }
 
-function getMode() {
-  const queryString = window.location.search;
-
-  const urlParams = new URLSearchParams(queryString);
-
-  const mode = urlParams.get('mode');
-
-  return mode ? mode : 'project_bounds';
-}
-
-function isTaskMode() {
-  return getMode() === 'task';
-}
-
-function isProjectMode() {
-  return getMode() === 'project_bounds';
-}
-
-function bindPopup(e, context, writable) {
+function bindPopup(e, context) {
   // build the popup using the actual feature from the data store,
   // not the feature returned from queryRenderedFeatures()
   const { id } = e.features[0];
@@ -223,17 +205,23 @@ function bindPopup(e, context, writable) {
   // the id is needed when clicking buttons in the popup, but only exists on the feature after it is added to the map
   feature.id = id;
 
-  let table = '';
+  let inputTable = '';
   let info = '';
 
   const props = feature.properties;
 
   const locationCategory = props['location_category'];
 
-  table +=
-    locationCategory === 'land_plot'
-      ? getLandPlotOptions(context, id)
-      : getProjectBoundsOptions(context, id);
+  const isPoint = feature.geometry.type === 'Point';
+
+  const isEditable = config.isProjectMode();
+
+  if (!isPoint) {
+    inputTable +=
+      locationCategory === 'land_plot'
+        ? getLandPlotOptions(context, id, isEditable)
+        : getProjectBoundsOptions(context, id, isEditable);
+  }
 
   if (feature && feature.geometry) {
     info += '<table class="metadata">';
@@ -284,19 +272,24 @@ function bindPopup(e, context, writable) {
     info += '</table>';
   }
 
-  const tabs =
-    '<div class="pad1 tabs-ui clearfix col12">' +
+  const propertiesTab =
     '<div class="tab col12">' +
     '<input class="hide" type="radio" id="properties" name="tab-group" checked="true">' +
     '<label class="keyline-top keyline-right tab-toggle pad0 pin-bottomleft z10 center col6" for="properties">Properties</label>' +
     '<div class="space-bottom1 col12 content">' +
     '<table class="space-bottom0 marker-properties">' +
-    table +
+    inputTable +
     '</table>' +
     '</div>' +
-    '</div>' +
+    '</div>';
+
+  const tabs =
+    '<div class="pad1 tabs-ui clearfix col12">' +
+    (!isPoint ? propertiesTab : '') +
     '<div class="space-bottom2 tab col12">' +
-    '<input class="hide" type="radio" id="info" name="tab-group">' +
+    `<input class="hide" type="radio" id="info" ${
+      isPoint ? 'checked="true"' : ''
+    } name="tab-group">` +
     '<label class="keyline-top tab-toggle pad0 pin-bottomright z10 center col6" for="info">Info</label>' +
     '<div class="space-bottom1 col12 content">' +
     '<div class="marker-info">' +
@@ -309,7 +302,7 @@ function bindPopup(e, context, writable) {
   const content =
     '<form action="javascript:void(0);">' +
     tabs +
-    (writable
+    (config.isProjectMode()
       ? '<div class="clearfix col12 pad1 keyline-top">' +
         '<div class="pill col6">' +
         '<button class="save col6 major" type="submit">Save</button>' +
@@ -349,7 +342,5 @@ module.exports = {
   addIds,
   addMarkers,
   geojsonToLayer,
-  bindPopup,
-  isTaskMode,
-  isProjectMode
+  bindPopup
 };

@@ -1,4 +1,4 @@
-const config = require('../config.js')(location.hostname);
+const config = require('../config.js');
 
 module.exports = function (context) {
   const user = {};

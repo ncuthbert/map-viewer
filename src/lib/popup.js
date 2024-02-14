@@ -96,8 +96,6 @@ module.exports = function (context) {
 
       feature.properties = obj;
 
-      console.log(obj);
-
       context.data.set({ map: data }, 'popup');
 
       // hide the popup

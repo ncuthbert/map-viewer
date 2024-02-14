@@ -11,7 +11,7 @@ const DrawCircle = require('../draw/circle');
 const SimpleSelect = require('../draw/simple_select');
 const ExtendDrawBar = require('../draw/extend_draw_bar');
 const { EditControl, SaveCancelControl, TrashControl } = require('./controls');
-const { geojsonToLayer, bindPopup, isProjectMode } = require('./util');
+const { geojsonToLayer, bindPopup } = require('./util');
 const styles = require('./styles');
 const {
   DEFAULT_STYLE,
@@ -21,6 +21,7 @@ const {
   DEFAULT_SATELLITE_FEATURE_COLOR
 } = require('../../constants');
 const drawStyles = require('../draw/styles');
+const config = require('../../config');
 
 let writable = false;
 let drawing = false;
@@ -138,7 +139,7 @@ module.exports = function (context, readonly) {
         styles: drawStyles
       });
 
-      const projectOnlyActions = isProjectMode()
+      const projectOnlyActions = config.isProjectMode()
         ? [
             {
               on: 'click',
@@ -179,18 +180,24 @@ module.exports = function (context, readonly) {
           ]
         : [];
 
+      const taskOnlyActions = config.isTaskMode()
+        ? [
+            {
+              on: 'click',
+              action: () => {
+                drawing = true;
+                context.Draw.changeMode('draw_point');
+              },
+              classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_point'],
+              title: 'Set task location'
+            }
+          ]
+        : [];
+
       const drawControl = new ExtendDrawBar({
         draw: context.Draw,
         buttons: [
-          {
-            on: 'click',
-            action: () => {
-              drawing = true;
-              context.Draw.changeMode('draw_point');
-            },
-            classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_point'],
-            title: 'Draw Point (m)'
-          },
+          ...taskOnlyActions,
           ...projectOnlyActions
           /* {
             on: 'click',
@@ -428,7 +435,7 @@ module.exports = function (context, readonly) {
           filter: ['==', ['geometry-type'], 'LineString']
         });
 
-        geojsonToLayer(context, writable);
+        geojsonToLayer(context, writable, true);
 
         context.data.set({
           mapStyleLoaded: false
@@ -525,7 +532,7 @@ module.exports = function (context, readonly) {
     context.dispatch.on('change.map', ({ obj }) => {
       maybeShowEditControl();
       if (obj.map) {
-        geojsonToLayer(context, writable);
+        geojsonToLayer(context, writable, false);
       }
     });
   }

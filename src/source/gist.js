@@ -1,4 +1,4 @@
-const config = require('../config.js')(location.hostname);
+const config = require('../config.js');
 const githubBase = config.GithubAPI
   ? config.GithubAPI + '/api/v3'
   : 'https://api.github.com';

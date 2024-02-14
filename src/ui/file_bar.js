@@ -1,5 +1,5 @@
+const config = require('../config.js');
 const meta = require('../lib/meta.js');
-const { isProjectMode } = require('./map/util.js');
 
 /**
  * This module provides the file picking & status bar above the map interface.
@@ -17,7 +17,7 @@ module.exports = function fileBar(context) {
   }
 
   function bar(selection) {
-    const projectOnlyActions = isProjectMode()
+    const projectOnlyActions = config.isProjectMode()
       ? [
           {
             title: 'Import shapefile',
