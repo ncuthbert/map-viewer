@@ -45,22 +45,30 @@
       </div>
     </div>
   </div>
-  
+
   <script>
+    const importGeoJson = (msg) => {
+      if (msg.data.geoJson) {
+        console.log('Received GeoJSON import message', msg);
+
+        api.data.set({ map: JSON.parse(msg.data.geoJson) });
+      }
+    }
+
     window.addEventListener('message', (msg) => {
+      if (window.ready) {
+        importGeoJson(msg);
+      } else {
         window.addEventListener(
           "ready",
           (e) => {
             console.log('ready inside frame');
 
-            if (msg.data.geoJson) {
-              console.log('Received GeoJSON import message', msg);
-
-              api.data.set({ map: JSON.parse(msg.data.geoJson) });
-            }
+            importGeoJson(msg);
           },
           false,
         );
+      }
     });
   </script>
   <script>

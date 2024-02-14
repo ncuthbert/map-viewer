@@ -65,6 +65,10 @@ function geojsonIO() {
 
   window.ready = true;
 
+  const event = new Event('ready');
+
+  window.dispatchEvent(event);
+
   return context;
 }
 
