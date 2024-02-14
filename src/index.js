@@ -50,6 +50,15 @@ gjIO.router.on();
 
 api(gjIO);
 
+function listenForImportMessage(context, msg) {
+  console.log('msg inside iframe');
+  if (msg.data.geoJson) {
+    console.log('Received GeoJSON import message', msg);
+
+    context.data.set({ map: JSON.parse(msg.data.geoJson) });
+  }
+}
+
 function geojsonIO() {
   const context = {};
   context.dispatch = d3.dispatch('change', 'route');
@@ -61,16 +70,9 @@ function geojsonIO() {
   context.router = router(context);
   context.user = user(context);
 
-  function listenForImportMessage(msg) {
-    console.log('msg inside iframe');
-    if (msg.data.geoJson) {
-      console.log('Received GeoJSON import message', msg);
-
-      data.set({ map: JSON.parse(msg.data.geoJson) });
-    }
-  }
-
-  window.addEventListener('message', listenForImportMessage);
+  window.addEventListener('message', (msg) =>
+    listenForImportMessage(context, msg)
+  );
 
   window.parent.postMessage({ ready: true }, '*');
 
