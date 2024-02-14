@@ -34,11 +34,7 @@
       frame-src * data: blob: ; 
       style-src * data: blob: 'unsafe-inline';
       font-src * data: blob: 'unsafe-inline';" />
-    <script>
-      window.addEventListener('message', (msg) =>
-        console.log('GOt message in iframe', msg)
-      );
-    </script>
+  
 </head>
 
 <body id="geojsonio-body" class="h-full">
@@ -49,6 +45,24 @@
       </div>
     </div>
   </div>
+  
+  <script>
+    window.addEventListener('message', (msg) => {
+        window.addEventListener(
+          "ready",
+          (e) => {
+            console.log('ready inside frame');
+
+            if (msg.data.geoJson) {
+              console.log('Received GeoJSON import message', msg);
+
+              api.data.set({ map: JSON.parse(msg.data.geoJson) });
+            }
+          },
+          false,
+        );
+    });
+  </script>
   <script>
     if (self == top) {
       document.getElementsByTagName("body")[0].style.display = "block";
