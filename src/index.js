@@ -61,8 +61,6 @@ function geojsonIO() {
   context.router = router(context);
   context.user = user(context);
 
-  window.parent.postMessage({ ready: true }, '*');
-
   function listenForImportMessage(msg) {
     if (msg.data.geoJson) {
       console.log('Received GeoJSON import message', msg);
@@ -72,6 +70,8 @@ function geojsonIO() {
   }
 
   window.addEventListener('message', listenForImportMessage);
+
+  window.parent.postMessage({ ready: true }, '*');
 
   return context;
 }
