@@ -48607,12 +48607,10 @@ The transaction will not be sampled. Please use the ${configInstrumenter} instru
 	    };
 	    workingDatasetSource.setData(addIds(filteredGeojson));
 	    addMarkers(filteredGeojson, context, writable);
-	    if (context.data.get('recovery')) {
-	      zoomextent$2(context);
-	      context.data.set({
-	        recovery: false
-	      });
-	    }
+	    zoomextent$2(context);
+	    context.data.set({
+	      recovery: false
+	    });
 	  }
 	}
 

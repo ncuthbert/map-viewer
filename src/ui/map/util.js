@@ -188,12 +188,10 @@ function geojsonToLayer(context, writable) {
     };
     workingDatasetSource.setData(addIds(filteredGeojson));
     addMarkers(filteredGeojson, context, writable);
-    if (context.data.get('recovery')) {
-      zoomextent(context);
-      context.data.set({
-        recovery: false
-      });
-    }
+    zoomextent(context);
+    context.data.set({
+      recovery: false
+    });
   }
 }
 
