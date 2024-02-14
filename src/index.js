@@ -63,6 +63,16 @@ function geojsonIO() {
 
   window.parent.postMessage({ ready: true }, '*');
 
+  function listenForImportMessage(msg) {
+    if (msg.data.geoJson) {
+      console.log('Received GeoJSON import message', msg);
+
+      data.set({ map: JSON.parse(msg.data.geoJson) });
+    }
+  }
+
+  window.addEventListener('message', listenForImportMessage);
+
   return context;
 }
 

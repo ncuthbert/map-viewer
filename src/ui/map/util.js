@@ -202,7 +202,9 @@ function getMode() {
 
   const urlParams = new URLSearchParams(queryString);
 
-  return urlParams.get('mode');
+  const mode = urlParams.get('mode');
+
+  return mode ? mode : 'project_bounds';
 }
 
 function isTaskMode() {
@@ -349,5 +351,7 @@ module.exports = {
   addIds,
   addMarkers,
   geojsonToLayer,
-  bindPopup
+  bindPopup,
+  isTaskMode,
+  isProjectMode
 };

@@ -11,7 +11,7 @@ const DrawCircle = require('../draw/circle');
 const SimpleSelect = require('../draw/simple_select');
 const ExtendDrawBar = require('../draw/extend_draw_bar');
 const { EditControl, SaveCancelControl, TrashControl } = require('./controls');
-const { geojsonToLayer, bindPopup } = require('./util');
+const { geojsonToLayer, bindPopup, isProjectMode } = require('./util');
 const styles = require('./styles');
 const {
   DEFAULT_STYLE,
@@ -138,6 +138,47 @@ module.exports = function (context, readonly) {
         styles: drawStyles
       });
 
+      const projectOnlyActions = isProjectMode()
+        ? [
+            {
+              on: 'click',
+              action: () => {
+                drawing = true;
+                context.Draw.changeMode('draw_polygon');
+              },
+              classes: [
+                'mapbox-gl-draw_ctrl-draw-btn',
+                'mapbox-gl-draw_polygon'
+              ],
+              title: 'Draw Polygon (p)'
+            },
+            {
+              on: 'click',
+              action: () => {
+                drawing = true;
+                context.Draw.changeMode('draw_rectangle');
+              },
+              classes: [
+                'mapbox-gl-draw_ctrl-draw-btn',
+                'mapbox-gl-draw_rectangle'
+              ],
+              title: 'Draw Rectangular Polygon (r)'
+            },
+            {
+              on: 'click',
+              action: () => {
+                drawing = true;
+                context.Draw.changeMode('draw_circle');
+              },
+              classes: [
+                'mapbox-gl-draw_ctrl-draw-btn',
+                'mapbox-gl-draw_circle'
+              ],
+              title: 'Draw Circular Polygon (c)'
+            }
+          ]
+        : [];
+
       const drawControl = new ExtendDrawBar({
         draw: context.Draw,
         buttons: [
@@ -150,6 +191,7 @@ module.exports = function (context, readonly) {
             classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_point'],
             title: 'Draw Point (m)'
           },
+          ...projectOnlyActions
           /* {
             on: 'click',
             action: () => {
@@ -159,37 +201,6 @@ module.exports = function (context, readonly) {
             classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_line'],
             title: 'Draw LineString (l)'
           },*/
-
-          {
-            on: 'click',
-            action: () => {
-              drawing = true;
-              context.Draw.changeMode('draw_polygon');
-            },
-            classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_polygon'],
-            title: 'Draw Polygon (p)'
-          },
-          {
-            on: 'click',
-            action: () => {
-              drawing = true;
-              context.Draw.changeMode('draw_rectangle');
-            },
-            classes: [
-              'mapbox-gl-draw_ctrl-draw-btn',
-              'mapbox-gl-draw_rectangle'
-            ],
-            title: 'Draw Rectangular Polygon (r)'
-          },
-          {
-            on: 'click',
-            action: () => {
-              drawing = true;
-              context.Draw.changeMode('draw_circle');
-            },
-            classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_circle'],
-            title: 'Draw Circular Polygon (c)'
-          }
         ]
       });
 
