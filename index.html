@@ -36,6 +36,7 @@
       font-src * data: blob: 'unsafe-inline';" />
   <script>
       const importGeoJson = (msg) => {
+        console.log('Inside import func');
         if (msg.data.geoJson) {
           console.log('Received GeoJSON import message', msg);
   
