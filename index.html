@@ -36,32 +36,27 @@
       font-src * data: blob: 'unsafe-inline';" />
   <script>
       const importGeoJson = (msg) => {
-        console.log('Inside import func');
         if (msg.data.geoJson) {
           console.log('Received GeoJSON import message', msg);
   
-          api.data.set({ map: JSON.parse(msg.data.geoJson) });
+          api.data.set({ map: msg.data.geoJson });
         }
       }
   
       window.addEventListener('message', (msg) => {
-        console.log('Got iframe message', window.ready);
-
         if (window.ready) {
           importGeoJson(msg);
         } else {
           window.addEventListener(
             "ready",
-            (e) => {
-              console.log('ready inside frame');
-  
+            (e) => {  
               importGeoJson(msg);
             },
             false,
           );
         }
       });
-    </script>
+  </script>
 </head>
 
 <body id="geojsonio-body" class="h-full">
