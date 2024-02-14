@@ -74,7 +74,9 @@ function geojsonIO() {
     listenForImportMessage(context, msg)
   );
 
-  window.parent.postMessage({ ready: true }, '*');
+  setTimeout(() => {
+    window.parent.postMessage({ ready: true }, '*');
+  }, 1500);
 
   return context;
 }
