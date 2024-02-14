@@ -59,10 +59,6 @@ function listenForImportMessage(context, msg) {
   }
 }
 
-window.addEventListener('message', (msg) =>
-  console.log('GOt message in iframe', msg)
-);
-
 function geojsonIO() {
   const context = {};
   context.dispatch = d3.dispatch('change', 'route');

@@ -34,6 +34,11 @@
       frame-src * data: blob: ; 
       style-src * data: blob: 'unsafe-inline';
       font-src * data: blob: 'unsafe-inline';" />
+    <script>
+      window.addEventListener('message', (msg) =>
+        console.log('GOt message in iframe', msg)
+      );
+    </script>
 </head>
 
 <body id="geojsonio-body" class="h-full">
