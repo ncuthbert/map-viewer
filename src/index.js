@@ -62,6 +62,7 @@ function geojsonIO() {
   context.user = user(context);
 
   function listenForImportMessage(msg) {
+    console.log('msg inside iframe');
     if (msg.data.geoJson) {
       console.log('Received GeoJSON import message', msg);
 
