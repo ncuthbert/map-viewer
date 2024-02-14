@@ -67,6 +67,9 @@ function geojsonIO() {
 
   const event = new Event('ready');
 
+  console.log(window);
+  debugger;
+
   window.dispatchEvent(event);
 
   return context;
