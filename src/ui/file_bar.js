@@ -1,4 +1,3 @@
-const config = require('../config.js');
 const meta = require('../lib/meta.js');
 
 /**
@@ -17,18 +16,12 @@ module.exports = function fileBar(context) {
   }
 
   function bar(selection) {
-    const projectOnlyActions = config.isProjectMode()
-      ? [
-          {
-            title: 'Import shapefile',
-            alt: '',
-            action: blindImport
-          }
-        ]
-      : [];
-
     const actions = [
-      ...projectOnlyActions,
+      // {
+      //   title: 'Import shapefile',
+      //   alt: '',
+      //   action: blindImport
+      // },
       {
         title: 'Save changes',
         action: function () {

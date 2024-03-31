@@ -1,9 +1,4 @@
-const {
-  addRow,
-  addSimplestyleProperties,
-  addLandPlotOptions,
-  addProjectBoundsOptions
-} = require('../ui/popover-form');
+const { addRow, addSimplestyleProperties } = require('../ui/popover-form');
 const { snakeCase } = require('lodash');
 const flash = require('../ui/flash');
 
@@ -23,15 +18,9 @@ module.exports = function (context) {
 
     sel.selectAll('.delete-invert').on('click', removeFeature);
 
-    sel.select('#location-category-select').on('change', onCategorySelect);
+    sel.select('#feature-category-select').on('change', onCategorySelect);
 
-    function onCategorySelect() {
-      if (sel.select('#location-category-select')[0][0].value === 'land_plot') {
-        addLandPlotOptions(e, context, id, onCategorySelect);
-      } else {
-        addProjectBoundsOptions(e, context, id, onCategorySelect);
-      }
-    }
+    function onCategorySelect() {}
 
     function clickClose() {
       e.target._onClose();
@@ -71,24 +60,13 @@ module.exports = function (context) {
         }
       }
 
-      if (obj['location_category'] === 'land_plot') {
-        if (!obj['name'] || !obj['type']) {
-          flash(
-            context.container,
-            'Please enter both a name and type for this plot.'
-          ).classed('error', 'true');
+      if (!obj['plot_id'] || !obj['feat_cat']) {
+        flash(
+          context.container,
+          'Please enter both a plot ID and feature type for this plot.'
+        ).classed('error', 'true');
 
-          return;
-        }
-      } else {
-        if (!obj['name']) {
-          flash(
-            context.container,
-            'Please enter a name for this project boundary.'
-          ).classed('error', 'true');
-
-          return;
-        }
+        return;
       }
 
       const data = context.data.get('map');

@@ -26,8 +26,8 @@ require('./css/marker.css');
 require('./css/theme.css');
 require('./css/site.css');
 
-const Sentry = require('@sentry/browser');
-const { BrowserTracing } = require('@sentry/tracing');
+// const Sentry = require('@sentry/browser');
+// const { BrowserTracing } = require('@sentry/tracing');
 
 const ui = require('./ui'),
   map = require('./ui/map'),
@@ -72,9 +72,9 @@ function geojsonIO() {
   return context;
 }
 
-Sentry.init({
-  dsn: 'https://c2d096c944dd4150ab7e44b0881b4a46@o5937.ingest.sentry.io/11480',
-  release: 'geojson.io@latest',
-  integrations: [new BrowserTracing()],
-  tracesSampleRate: 0.1
-});
+// Sentry.init({
+//   dsn: 'https://c2d096c944dd4150ab7e44b0881b4a46@o5937.ingest.sentry.io/11480',
+//   release: 'geojson.io@latest',
+//   integrations: [new BrowserTracing()],
+//   tracesSampleRate: 0.1
+// });

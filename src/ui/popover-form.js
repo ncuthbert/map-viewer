@@ -1,104 +1,90 @@
 const escapeHTML = require('escape-html');
-const { startCase } = require('lodash');
-const config = require('../config');
 
-function getLocationCategoryOption(selectedOption, isEditable) {
-  return `<tr><th><input class="prop-input" readonly type="text" value="Location Category"/></th><td>
+function getFeatureCategoryOptions(selectedOption, isEditable) {
+  return `<tr><th><input class="prop-input" type="text" value="feat_cat"/></th><td>
   <select ${
     !isEditable ? 'disabled' : ''
-  } class="prop-input" id="location-category-select">
+  } class="prop-input" id="feature-category-select">
       <option disabled ${
         !selectedOption ? 'selected' : ''
-      } value> -- Select a category -- </option>
+      } value> -- Select category -- </option>
     <option ${
-      selectedOption === 'project_bounds' ? 'selected' : ''
-    } value="project_bounds">Project bounds</option>
+      selectedOption === 'project_boundary' ? 'selected' : ''
+    } value="project_boundary">project_boundary</option>
     <option ${
-      selectedOption === 'land_plot' ? 'selected' : ''
-    } value="land_plot">Land plot</option>
+      selectedOption === 'habitat_boundary' ? 'selected' : ''
+    } value="habitat_boundary">habitat_boundary</option>
+    <option ${
+      selectedOption === 'metric_plant_survey' ? 'selected' : ''
+    } value="metric_plant_survey">metric_plant_survey</option>
+    <option ${
+      selectedOption === 'metric_acoustic_survey' ? 'selected' : ''
+    } value="metric_acoustic_survey">metric_acoustic_survey</option>
+    <option ${
+      selectedOption === 'metric_invertebrate_survey' ? 'selected' : ''
+    } value="metric_invertebrate_survey">metric_invertebrate_survey</option>
+    <option ${
+      selectedOption === 'metric_habitat_survey' ? 'selected' : ''
+    } value="metric_habitat_survey">metric_habitat_survey</option>
     </select>
   </td></tr>`;
 }
 
-function getLandPlotOptions(context, id, isEditable) {
-  return getOptions(
-    context,
-    id,
-    { Name: '', Type: '' },
-    'land_plot',
-    isEditable
-  );
-}
-
-function getProjectBoundsOptions(context, id, isEditable) {
-  return getOptions(context, id, { Name: '' }, 'project_bounds', isEditable);
-}
-
-function getOptions(context, id, propertiesStruct, key, isEditable) {
+function getFeatureOptions(context, id, isEditable) {
   let table = '';
 
   const feature = context.data.get('map').features[id];
-
   const props = feature.properties;
-
-  const newProperties = { ...propertiesStruct };
+  const newProperties = { plot_id: '' }; // required props
 
   for (const k in props) {
-    if (k === 'location_category') continue;
+    if (['feat_cat'].includes(k)) continue; // Select option added separately
 
-    const esc = startCase(escapeHTML(k));
+    const escK = escapeHTML(k);
 
     // users don't want to see "[object Object]"
     if (typeof props[k] === 'object') {
-      newProperties[esc] = escapeHTML(JSON.stringify(props[k]));
+      newProperties[escK] = escapeHTML(JSON.stringify(props[k]));
     } else {
-      newProperties[esc] = escapeHTML(props[k]);
+      newProperties[escK] = escapeHTML(props[k]);
     }
   }
 
-  table += getLocationCategoryOption(key, isEditable);
+  table += getFeatureCategoryOptions(props.feat_cat, isEditable);
 
-  for (const key in propertiesStruct) {
+  for (const key in newProperties) {
     table +=
-      `<tr><th><input ${
-        !isEditable ? 'readonly' : ''
-      } class="prop-input" readonly type="text" value="` +
-      key +
-      '"' +
-      ' /></th>' +
-      `<td><input ${
-        !isEditable ? 'readonly' : ''
-      } class="prop-input" type="text" value="` +
-      newProperties[key] +
-      '"' +
-      ' /></td></tr>';
+      '<tr>' +
+      '<th>' +
+      `<input 
+            class="prop-input" 
+            readonly 
+            type="text" 
+            value="${key}"/>` +
+      '</th>' +
+      '<td>' +
+      `<input 
+            ${!isEditable ? 'readonly' : ''} 
+            class="prop-input" 
+            type="text" 
+            value="${newProperties[key]}"/>` +
+      '</td>' +
+      '</tr>';
   }
 
   return table;
 }
 
-function addLandPlotOptions(e, context, id, onCategorySelect) {
+function addFeatureOptions(e, context, id, onCategorySelect) {
   const sel = d3.select(e.target._content);
 
-  const isEditable = config.isProjectMode();
+  const isEditable = true;
 
-  const table = getLandPlotOptions(context, id, isEditable);
+  const table = getFeatureOptions(context, id, isEditable);
 
   sel.select('table.marker-properties tbody').html(table);
 
-  sel.select('#location-category-select').on('change', onCategorySelect);
-}
-
-function addProjectBoundsOptions(e, context, id, onCategorySelect) {
-  const sel = d3.select(e.target._content);
-
-  const isEditable = config.isProjectMode();
-
-  const table = getProjectBoundsOptions(context, id, isEditable);
-
-  sel.select('table.marker-properties tbody').html(table);
-
-  sel.select('#location-category-select').on('change', onCategorySelect);
+  sel.select('#feature-category-select').on('change', onCategorySelect);
 }
 
 function addRow(e) {
@@ -243,11 +229,9 @@ function addSimplestyleProperties(e, context, id) {
 }
 
 module.exports = {
-  getLandPlotOptions,
-  getLocationCategoryOption,
-  addLandPlotOptions,
+  getFeatureOptions,
+  getFeatureCategoryOptions,
+  addFeatureOptions,
   addRow,
-  addSimplestyleProperties,
-  getProjectBoundsOptions,
-  addProjectBoundsOptions
+  addSimplestyleProperties
 };

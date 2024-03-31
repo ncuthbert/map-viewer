@@ -139,76 +139,66 @@ module.exports = function (context, readonly) {
         styles: drawStyles
       });
 
-      const projectOnlyActions = config.isProjectMode()
-        ? [
-            {
-              on: 'click',
-              action: () => {
-                drawing = true;
-                context.Draw.changeMode('draw_polygon');
-              },
-              classes: [
-                'mapbox-gl-draw_ctrl-draw-btn',
-                'mapbox-gl-draw_polygon'
-              ],
-              title: 'Draw Polygon (p)'
-            },
-            {
-              on: 'click',
-              action: () => {
-                drawing = true;
-                context.Draw.changeMode('draw_rectangle');
-              },
-              classes: [
-                'mapbox-gl-draw_ctrl-draw-btn',
-                'mapbox-gl-draw_rectangle'
-              ],
-              title: 'Draw Rectangular Polygon (r)'
-            },
-            {
-              on: 'click',
-              action: () => {
-                drawing = true;
-                context.Draw.changeMode('draw_circle');
-              },
-              classes: [
-                'mapbox-gl-draw_ctrl-draw-btn',
-                'mapbox-gl-draw_circle'
-              ],
-              title: 'Draw Circular Polygon (c)'
-            }
-          ]
-        : [];
+      let mapActions = [
+        {
+          on: 'click',
+          action: () => {
+            drawing = true;
+            context.Draw.changeMode('draw_point');
+          },
+          classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_point'],
+          title: 'Draw Point (m)'
+        },
+        {
+          on: 'click',
+          action: () => {
+            drawing = true;
+            context.Draw.changeMode('draw_line_string');
+          },
+          classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_line'],
+          title: 'Draw LineString (l)'
+        }
+      ];
 
-      const taskOnlyActions = config.isTaskMode()
-        ? [
-            {
-              on: 'click',
-              action: () => {
-                drawing = true;
-                context.Draw.changeMode('draw_point');
-              },
-              classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_point'],
-              title: 'Set task location'
-            }
-          ]
-        : [];
-
-      const drawControl = new ExtendDrawBar({
-        draw: context.Draw,
-        buttons: [
-          ...taskOnlyActions,
-          ...projectOnlyActions
-          /* {
+      if (!config.isCheckpointMode()) {
+        // Checkpoint mode does not allow polygons
+        mapActions = mapActions.concat([
+          {
             on: 'click',
             action: () => {
               drawing = true;
-              context.Draw.changeMode('draw_line_string');
+              context.Draw.changeMode('draw_polygon');
             },
-            classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_line'],
-            title: 'Draw LineString (l)'
-          },*/
-        ]
+            classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_polygon'],
+            title: 'Draw Polygon (p)'
+          },
+          {
+            on: 'click',
+            action: () => {
+              drawing = true;
+              context.Draw.changeMode('draw_rectangle');
+            },
+            classes: [
+              'mapbox-gl-draw_ctrl-draw-btn',
+              'mapbox-gl-draw_rectangle'
+            ],
+            title: 'Draw Rectangular Polygon (r)'
+          },
+          {
+            on: 'click',
+            action: () => {
+              drawing = true;
+              context.Draw.changeMode('draw_circle');
+            },
+            classes: ['mapbox-gl-draw_ctrl-draw-btn', 'mapbox-gl-draw_circle'],
+            title: 'Draw Circular Polygon (c)'
+          }
+        ]);
+      }
+
+      const drawControl = new ExtendDrawBar({
+        draw: context.Draw,
+        buttons: mapActions
       });
 
       context.map.addControl(new mapboxgl.NavigationControl());
@@ -219,11 +209,9 @@ module.exports = function (context, readonly) {
       context.map.addControl(editControl, 'top-right');
 
       const saveCancelControl = new SaveCancelControl();
-
       context.map.addControl(saveCancelControl, 'top-right');
 
       const trashControl = new TrashControl();
-
       context.map.addControl(trashControl, 'top-right');
 
       const exitEditMode = () => {
@@ -480,12 +468,14 @@ module.exports = function (context, readonly) {
         mapStyleLoaded: true
       });
       context.map.on('mouseenter', 'map-data-fill', maybeSetCursorToPointer);
-      context.map.on('mouseleave', 'map-data-fill', maybeResetCursor);
       context.map.on('mouseenter', 'map-data-line', maybeSetCursorToPointer);
+
+      context.map.on('mouseleave', 'map-data-fill', maybeResetCursor);
       context.map.on('mouseleave', 'map-data-line', maybeResetCursor);
 
       context.map.on('click', 'map-data-fill', handleLinestringOrPolygonClick);
       context.map.on('click', 'map-data-line', handleLinestringOrPolygonClick);
+
       context.map.on(
         'touchstart',
         'map-data-fill',

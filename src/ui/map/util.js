@@ -10,10 +10,7 @@ const {
   DEFAULT_LIGHT_FEATURE_COLOR,
   DEFAULT_SATELLITE_FEATURE_COLOR
 } = require('../../constants');
-const {
-  getLandPlotOptions,
-  getProjectBoundsOptions
-} = require('../popover-form');
+const { getFeatureOptions } = require('../popover-form');
 const config = require('../../config');
 
 const markers = [];
@@ -210,20 +207,10 @@ function bindPopup(e, context) {
   let inputTable = '';
   let info = '';
 
-  const props = feature.properties;
+  const isCheckpoint = config.isCheckpoint(feature);
+  const isEditable = !config.isCheckpointMode() || isCheckpoint;
 
-  const locationCategory = props['location_category'];
-
-  const isPoint = feature.geometry.type === 'Point';
-
-  const isEditable = config.isProjectMode();
-
-  if (!isPoint) {
-    inputTable +=
-      locationCategory === 'land_plot'
-        ? getLandPlotOptions(context, id, isEditable)
-        : getProjectBoundsOptions(context, id, isEditable);
-  }
+  inputTable += getFeatureOptions(context, id, isEditable);
 
   if (feature && feature.geometry) {
     info += '<table class="metadata">';
@@ -253,7 +240,10 @@ function bindPopup(e, context) {
         '<tr><td>Longitude</td><td>' +
         feature.geometry.coordinates[0].toFixed(4) +
         '</td></tr>';
-    } else if (feature.geometry.type === 'Polygon') {
+    } else if (
+      feature.geometry.type === 'Polygon' ||
+      feature.geometry.type === 'MultiPolygon'
+    ) {
       info +=
         '<tr><td>Sq. Meters</td><td>' +
         area(feature.geometry).toFixed(2) +
@@ -287,10 +277,10 @@ function bindPopup(e, context) {
 
   const tabs =
     '<div class="pad1 tabs-ui clearfix col12">' +
-    (!isPoint ? propertiesTab : '') +
+    (!isCheckpoint ? propertiesTab : '') +
     '<div class="space-bottom2 tab col12">' +
     `<input class="hide" type="radio" id="info" ${
-      isPoint ? 'checked="true"' : ''
+      isCheckpoint ? 'checked="true"' : ''
     } name="tab-group">` +
     '<label class="keyline-top tab-toggle pad0 pin-bottomright z10 center col6" for="info">Info</label>' +
     '<div class="space-bottom1 col12 content">' +
@@ -304,14 +294,17 @@ function bindPopup(e, context) {
   const content =
     '<form action="javascript:void(0);">' +
     tabs +
-    (config.isProjectMode()
-      ? '<div class="clearfix col12 pad1 keyline-top">' +
-        '<div class="pill col6">' +
-        '<button class="save col6 major" type="submit">Save</button>' +
-        '<button class="minor col6 cancel">Cancel</button>' +
-        '</div>' +
-        '<button class="col6 text-right pad0 delete-invert"><span class="fa-solid fa-trash"></span> Delete location</button></div>'
-      : '') +
+    '<div class="clearfix col12 pad1 keyline-top">' +
+    '<div class="pill col6">' +
+    `<button class="save col6 major ${
+      !isEditable || isCheckpoint ? 'hidden' : ''
+    }" type="submit">Save</button>` +
+    '<button class="minor col6 cancel">Cancel</button>' +
+    '</div>' +
+    `<button class="col6 text-right pad0 delete-invert ${
+      !isEditable ? 'hidden' : ''
+    }"><span class="fa-solid fa-trash"></span> Delete location</button>` +
+    '</div>' +
     '</form>';
 
   const popupOffsets = {
